@@ -18,6 +18,8 @@ from selenium.common.exceptions import TimeoutException, ElementNotInteractableE
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
 
+
+
 class mydriver:
     def __init__(self, download_dir):   
         self.download_dir = download_dir
@@ -35,6 +37,7 @@ class mydriver:
         self.driver=webdriver.Chrome(ChromeDriverManager().install(),options=options)
         self.driver.implicitly_wait(10)
         return(self.driver)
+
     
 class main:
     def __init__(self,driver):
@@ -157,6 +160,7 @@ class main:
     def framenav(self,num):
         self.driver.switch_to.default_content()
         frames=self.driver.find_elements(By.TAG_NAME, 'iframe')
+        print(frames[num].id)
         self.driver.switch_to.frame(frames[num])
 
     def getcf(self):
@@ -219,9 +223,15 @@ class main:
         try:
             self.driver.switch_to.default_content()
             if 'ICOK' in self.driver.page_source:
-                self.waitid("#ICOK")
+                #self.waitid("#ICOK")
+                actions = ActionChains(self.driver)
+                actions.send_keys(Keys.RETURN)
+                actions.perform()
             elif "ALERTOK" in self.driver.page_source:
-                self.waitid("#ALERTOK")
+                #self.waitid("#ALERTOK")
+                actions = ActionChains(self.driver)
+                actions.send_keys(Keys.RETURN)
+                actions.perform()
         except UnexpectedAlertPresentException:
             try:
                 self.driver.switch_to.alert.accept()
