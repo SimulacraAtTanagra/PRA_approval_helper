@@ -73,7 +73,40 @@ class main:
                 self.waitfillid(key,value)
                 sleep(.5)
                 self.okay()
-        
+    def cf_timeout_pop(self):
+        windowlist=self.driver.window_handles
+        if len(windowlist)>2:
+            self.driver.switch_to.window(windowlist[-1])
+            elem=self.driver.find_element_by_xpath("//a[@href]")
+            elem.send_keys(Keys.RETURN)
+            self.driver.switch_to.window(windowlist[1])
+    def cf_okay(self):
+        if self.cf_okay_check():
+            self.cf_press_okay()
+            self.switch_tar()
+    
+    def cf_press_okay(self):
+        actions = ActionChains(self.driver)
+        actions.send_keys(Keys.RETURN)
+        actions.perform()
+    
+    def cf_okay_check(self):
+        self.switch_def()
+        source=self.driver.page_source
+        if "#ALERTOK" in source or "#ICOK" in source:
+            return(True)
+        else:
+            return(False)
+    
+    def cf_save_check(self):    
+    #a pop up appears in CF if you attempt to navigate away without saving
+    #only after changes have been made. This presses 'Yes' on that
+        self.switch_def()
+        source=self.driver.page_source
+        id="ptpopupmsg"
+        if id in source:
+            if 'display: none' not in self.driver.find_element_by_id(id).get_attributes('style'):
+                self.driver.find_element_by_xpath('//*[@id="ptpopupmsgbtn1"]').send_keys(Keys.RETURN)
     def clear_fd(self,fieldid):
         delay = 3 
         try:
@@ -358,19 +391,31 @@ class main:
                 return(False)   
         else:
             return(False)
-        
+    def print_styles(self):
+        self.switch_def()
+        self.switch_tar()
+        statelist=[]
+        try:
+            while True:
+                elem1=self.driver.find_element(By.XPATH,'//*[@id="WAIT_win0"]')
+                elem2=self.driver.find_element(By.XPATH,'//*[@id="SAVED_win0"]')
+                
+                statelist.append(f"WAIT_win is currently: {elem1.get_attribute('style')}")
+                statelist.append(f"SAVED_win is currently: {elem2.get_attribute('style')}")
+        except:
+            return(statelist)
+    
     def saving_check(self):
         delay = 1 
         fieldid='//*[@id="WAIT_win0"]'
-        if self.windowswitch("WAIT_win0",0):
-            try:
-                myElem = WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.XPATH, fieldid)))
-                return(myElem.get_attribute('style'))
-            except NoSuchElementException:
-                self.okay2()
-                self.save_check()
-            except:
-                return(False)   
+        self.switch_tar()
+        try:
+            myElem = WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.XPATH, fieldid)))
+            return(myElem.get_attribute('style'))
+        except NoSuchElementException:
+            self.okay2()
+            self.saving_check()
+        
         else:
             return(False)
     def save_flag(self,status):
@@ -446,6 +491,12 @@ class main:
         except Exception as e:
             print(e)
             return(False)
+    def switch_def(self):
+        self.driver.switch_to.default_content()
+        
+    def switch_tar(self):
+        elem=self.driver.find_element(By.ID,"ptifrmtgtframe")
+        self.driver.switch_to.frame(elem)
             
     def union(elemlist1,elemlist2):
         return(len(set(elemlist1,elemlist2))>1)
