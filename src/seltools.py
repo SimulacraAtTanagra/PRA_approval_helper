@@ -97,6 +97,29 @@ class main:
             return(True)
         else:
             return(False)
+    def cf_wait_check(self):
+        self.switch_def()
+        self.switch_tar()
+        elem1=self.driver.find_element(By.XPATH,'//*[@id="WAIT_win0"]')
+        elem2=self.driver.find_element(By.XPATH,'//*[@id="SAVED_win0"]')
+        if "visible" in elem1.get_attribute('style') or "visible" in elem2.get_attribute('style'):
+            return(True)
+        else:
+            return(False)
+    
+    def cf_save(self,itera):    
+    #this function doubles as a check on db call events that sometimes create popups
+        if itera==0:
+            self.driver.find_element_by_id("#ICSave").click()
+            itera+=1
+        if self.cf_wait_check():
+            self.cf_save(itera)
+        elif self.cf_okay_check():
+            self.cf_press_okay()
+            self.cf_save(itera)
+        else:
+            return(True)
+    
     
     def cf_save_check(self):    
     #a pop up appears in CF if you attempt to navigate away without saving
@@ -495,6 +518,7 @@ class main:
         self.driver.switch_to.default_content()
         
     def switch_tar(self):
+        self.switch_def()
         elem=self.driver.find_element(By.ID,"ptifrmtgtframe")
         self.driver.switch_to.frame(elem)
             
