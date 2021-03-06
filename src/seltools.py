@@ -110,15 +110,20 @@ class main:
     def cf_save(self,itera):    
     #this function doubles as a check on db call events that sometimes create popups
         if itera==0:
+            self.switch_tar()
             self.driver.find_element_by_id("#ICSave").click()
             itera+=1
         if self.cf_wait_check():
+            if self.cf_okay_check():
+                self.cf_press_okay()
+                self.cf_save(itera)
             self.cf_save(itera)
-        elif self.cf_okay_check():
+        if self.cf_okay_check():
             self.cf_press_okay()
+            if self.cf_wait_check():
+                self.cf_save(itera)
             self.cf_save(itera)
-        else:
-            return(True)
+        return(True)
     
     
     def cf_save_check(self):    
@@ -167,15 +172,21 @@ class main:
         return(valdict)
         
     def data_distribute(self,datadict):
+        flag=True
         for key, value in datadict.items():
-            if self.windowswitch(key,0):
+            self.switch_tar()
+            if flag==False:
+                pass
+            if key in self.driver.page_source:
                 try:
                     self.waitfillid(key,value)
                 except StaleElementReferenceException:
                     self.waitfillid(key,value)
                 except ElementClickInterceptedException:
-                    self.okay2()
+                    self.cf_save(1)
                     self.waitfillid(key,value)
+                except NoSuchElementException:
+                    flag=False
     
     def	dropdownitembyid(self,idstr):
         select = Select(self.driver.find_element_by_id(idstr))
@@ -231,17 +242,19 @@ class main:
         return(idlist)
         
     def getvals(self,idstr):
+        self.switch_tar()
         try:
             return(self.driver.find_element_by_id(idstr).get_attribute('value'))
         except TimeoutException:
-            self.windowswitch(idstr,0)
+            self.switch_def()
             return(self.driver.find_element_by_id(idstr).get_attribute('value'))
             
     def gettext(self,idstr):
+        self.switch_tar()
         try:
             return(self.driver.find_element_by_id(idstr).text)
         except TimeoutException:
-            self.windowswitch(idstr,0)
+            self.switch_tar()
             return(self.driver.find_element_by_id(idstr).text)
         
     def get_class_vals(self,classstr):    #this function should return labels
