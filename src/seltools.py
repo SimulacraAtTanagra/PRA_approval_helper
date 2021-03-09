@@ -173,20 +173,21 @@ class main:
         
     def data_distribute(self,datadict):
         flag=True
+        source=self.driver.page_source
+        datadict={k:v for k,v in datadict.items() if k in source}
         for key, value in datadict.items():
             self.switch_tar()
             if flag==False:
                 pass
-            if key in self.driver.page_source:
-                try:
-                    self.waitfillid(key,value)
-                except StaleElementReferenceException:
-                    self.waitfillid(key,value)
-                except ElementClickInterceptedException:
-                    self.cf_save(1)
-                    self.waitfillid(key,value)
-                except NoSuchElementException:
-                    flag=False
+            try:
+                self.waitfillid(key,value)
+            except StaleElementReferenceException:
+                self.waitfillid(key,value)
+            except ElementClickInterceptedException:
+                self.cf_save(1)
+                self.waitfillid(key,value)
+            except NoSuchElementException:
+                flag=False
     
     def	dropdownitembyid(self,idstr):
         select = Select(self.driver.find_element_by_id(idstr))
