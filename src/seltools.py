@@ -275,7 +275,8 @@ class main:
         table_id = self.driver.find_element(By.ID, ID)
         rows = table_id.find_elements(By.TAG_NAME, "td") # get all of the rows in the table
         return(rows)
-                                
+    def make_visible(self,idstr):
+        self.driver.execute_script(f"document.getElementById({idstr}).style.display = 'block';")
     def name_to_css(self,x):
         y=x.get_attribute('id')
         return("#"+y.split("$")[0]+"/$"+y.split("$")[1])
@@ -627,32 +628,30 @@ class main:
                 return(e)
     
     def windowswitch(self,elemstr,num):
-        if elemstr in self.driver.page_source:
+        #go to top level domain
+        self.driver.switch_to.default_content()
+        iframes = self.driver.find_elements(By.TAG_NAME, 'iframe')
+        if elemstr in self.driver.page_source:  #if we find it, just return True
             return(True)
-        if 'frame id' in self.driver.page_source:
+        elif num<=len(iframes):   #if the index isn't the same as the number of items
+            
             try:
-                self.driver.switch_to.frame(self.driver.page_source.split("frame id")[2].split()[0][6:-1])
+                self.driver.switch_to.frame(iframes[num])
+                #try to switch to this window
+                num+=1 #incremenet the number
+                self.windowswitch(elemstr,num)  #and check again
             except Exception as e:
                 print(e)
-                pass
-        if elemstr in self.driver.page_source:
-            return(True)
+                #if we're not able to switch to the window
+                num+=1
+                self.windowswitch(elemstr,num)
         else:
             self.driver.switch_to.default_content()
-            try:
-                self.driver.switch_to.frame(num)
-            except NoSuchFrameException:
-                pass
-            num+=1
-            try:
-                self.windowswitch(elemstr,num)
-            except Exception as e:
-                #print(e)
-                self.driver.switch_to.default_content
-                self.windowswitch(elemstr,num)   
-            finally:
-                return(False)    
-
+            if elemstr in self.driver.page_source:
+                return(True)
+            else:
+                return(False)
+    
     def xpathclick(self,elem):
         self.driver.find_element_by_xpath(elem).click()
 
