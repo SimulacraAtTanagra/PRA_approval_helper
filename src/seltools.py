@@ -100,8 +100,11 @@ class main:
     def cf_wait_check(self):
         self.switch_def()
         self.switch_tar()
-        elem1=self.driver.find_element(By.XPATH,'//*[@id="WAIT_win0"]')
-        elem2=self.driver.find_element(By.XPATH,'//*[@id="SAVED_win0"]')
+        try:
+            elem1=self.driver.find_element(By.XPATH,'//*[@id="WAIT_win0"]')
+            elem2=self.driver.find_element(By.XPATH,'//*[@id="SAVED_win0"]')
+        except:
+            return(False)
         if "visible" in elem1.get_attribute('style') or "visible" in elem2.get_attribute('style'):
             return(True)
         else:
@@ -273,12 +276,18 @@ class main:
 
     
     
-    def grab_table(self,ID):
-        table_id = self.driver.find_element(By.ID, ID)
-        rows = table_id.find_elements(By.TAG_NAME, "td") # get all of the rows in the table
+    def grab_table(self,ID,obj=None):
+        if obj:
+            rows=obj.find_elements(By.TAG_NAME,'td')
+        else:
+            table_id = self.driver.find_element(By.ID, ID)
+            rows = table_id.find_elements(By.TAG_NAME, "td") # get all of the rows in the table
         return(rows)
+        
     def make_visible(self,idstr):
         self.driver.execute_script(f"document.getElementById({idstr}).style.display = 'block';")
+        #btw, this doesn't bloody work on elements where the entire body html
+        #is marked as display none or overflow. Thanks Peoplesoft. Great work, gaiz.
     def name_to_css(self,x):
         y=x.get_attribute('id')
         return("#"+y.split("$")[0]+"/$"+y.split("$")[1])
