@@ -208,23 +208,25 @@ class main:
     
     
     def dropdownselector(self,idstr,selected):
-        if self.windowswitch(idstr,0):
-            try:
-                delay=2
-                select = Select(WebDriverWait(self.driver, delay).until(EC.element_to_be_clickable((By.ID, idstr))))
-                select.select_by_visible_text(selected)
-                select.send_keys(Keys.TAB)
-                self.okay2()
-            except NoSuchElementException:
-                self.okay2()
-                self.driver.switch_to.default_content()
-                self.dropdownselector(idstr,selected)
-            except ElementClickInterceptedException:
-                self.okay2()
-                self.dropdownselector(idstr,selected)
-            except:
-                pass
-    
+        try:
+            delay=2
+            select = Select(WebDriverWait(self.driver, delay).until(EC.element_to_be_clickable((By.ID, idstr))))
+            select.select_by_visible_text(selected)
+            select.send_keys(Keys.TAB)
+            self.okay2()
+        except NoSuchElementException:
+            self.okay2()
+            self.driver.switch_to.default_content()
+            self.dropdownselector(idstr,selected)
+        except ElementClickInterceptedException:
+            self.okay2()
+            self.dropdownselector(idstr,selected)
+        except:
+            pass
+        finally:
+            self.switch_tar()
+            self.dropdownselector(idstr,selected)
+
     def framenav(self,num):
         self.driver.switch_to.default_content()
         frames=self.driver.find_elements(By.TAG_NAME, 'iframe')
@@ -579,7 +581,10 @@ class main:
             except:
                 pass
             if 'dropdown' in myElem.get_attribute('class').lower():
-                self.dropdownselector(fieldid,texts)
+                if texts=='':
+                    Select(myElem).select_by_index(0)
+                else:
+                    self.dropdownselector(fieldid,texts)
             else:
                 myElem.send_keys(texts)
             myElem.send_keys(Keys.TAB)
@@ -597,7 +602,10 @@ class main:
                 except:
                     pass
                 if 'dropdown' in myElem.get_attribute('class').lower():
-                    self.dropdownselector(fieldid,texts)
+                    if texts=='':
+                        Select(myElem).select_by_index(0)
+                    else:
+                        self.dropdownselector(fieldid,texts)
                 else:
                     myElem.send_keys(texts)
                 myElem.send_keys(Keys.TAB)
