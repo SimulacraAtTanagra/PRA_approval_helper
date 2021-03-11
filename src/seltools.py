@@ -559,7 +559,7 @@ class main:
             else:
                 break               
     def waitalert(self):
-        WebDriverWait(browser, 3).until(EC.alert_is_present(),'Are you sure to proceed?'+'Ar you sure to delete this timesheet?'+'This Timesheet was successfully saved')
+        WebDriverWait(self.driver, 3).until(EC.alert_is_present(),'Are you sure to proceed?'+'Ar you sure to delete this timesheet?'+'This Timesheet was successfully saved')
                       
     def waitcheckbox(self,idstr):
         delay = 3 
