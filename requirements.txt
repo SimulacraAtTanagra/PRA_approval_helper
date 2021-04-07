@@ -1,5 +1,1 @@
-pandas==0.24.0
-fuzzywuzzy==0.18.0
-selenium==3.141.0
-textract==1.6.3
-webdriver_manager==3.3.0
+
